@@ -20,7 +20,11 @@ class Snake:
         # defying game board
         self.board = Canvas(self.master, width=300, height=300, background='grey')
         # creating first snake's block
-        self.snake = self.board.create_rectangle(0, 0, 10, 10, fill='green')
+        self.snake = self.board.create_rectangle(50, 50, 60, 60, fill='green')
+        self.snake2 = self.board.create_rectangle(40, 50, 50, 60, fill='blue')
+        self.snake3 = self.board.create_rectangle(30, 50, 40, 60, fill='blue')
+        # defying snake's body
+        self.snake_body = [self.snake, self.snake2, self.snake3]
         # placing game board in main window
         self.board.place(x=50, y=50)
         # defying variables to move snake blocks on the screen
@@ -30,12 +34,20 @@ class Snake:
         # defying a food abject
         self.food = None
         print(self.speed)
-
         self.movement()
 
     def movement(self):
-        # defying move snake object on board
+        # defying snake head moves on board
         self.board.move(self.snake, self.x, self.y)
+        # defying snake body moves on board
+        if not (self.x == 0 and self.y == 0):
+            for block in self.snake_body[1:][::-1]:
+                if self.snake_body.index(block) == 1:
+                    c = self.board.coords(self.snake)
+                    self.board.coords(self.snake_body[1], (c[0] - self.x, c[1] - self.y, c[2] - self.x, c[3] - self.y))
+                else:
+                    previous_block_coords = self.board.coords(self.snake_body[self.snake_body.index(block) - 1])
+                    self.board.coords(block, previous_block_coords)
 
         # defying stop conditions
         stop_condition = False
@@ -72,7 +84,7 @@ class Snake:
     def food_creator(self):
         f1 = randint(0, 29) * 10
         f2 = randint(0, 29) * 10
-        food = self.board.create_oval(f1, f2, f1+10, f2+10, fill='yellow')
+        food = self.board.create_oval(f1, f2, f1 + 10, f2 + 10, fill='yellow')
         return food
 
     def left(self, event):
