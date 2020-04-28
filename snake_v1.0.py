@@ -59,6 +59,14 @@ class Snake:
         # defying stop conditions
         stop_condition = False
         snake_position = self.board.coords(self.snake)
+        # adding snake's body blocks to prohibited fields
+        for block in self.snake_body[1:]:
+            if self.board.coords(self.snake) == self.board.coords(block):
+                self.board.create_rectangle(snake_position[0] - self.x, snake_position[1] - self.y,
+                                            snake_position[2] - self.x, snake_position[3] - self.y,
+                                            fill='red')
+                stop_condition = True
+
         if 0 > snake_position[0] or snake_position[0] >= 300 or 0 < snake_position[1] >= 300 or snake_position[1] < 0:
             # creating a red block on the place where the snake hit a wall
             self.board.create_rectangle(snake_position[0] - self.x, snake_position[1] - self.y,
@@ -68,16 +76,7 @@ class Snake:
 
         # checking if the move is allowed
         if not stop_condition:
-            '''# repeating snake move after 100ms
-            if snake_position[1] >= 290:
-                self.y = -10
-            if snake_position[0] >= 290:
-                self.x = -10
-            if snake_position[0] < 10:
-                self.x = 10
-            if snake_position[1] < 10:
-                self.y = 10'''
-
+            # repeating snake move after self.speed in ms
             self.board.after(self.speed, self.movement)
             # eating the food by the snake
             if self.food:
