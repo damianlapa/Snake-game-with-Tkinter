@@ -15,8 +15,10 @@ class Snake:
     def __init__(self, tk_environment):
         # launching Tkinter environment
         self.master = tk_environment
-        # setting width and height main window
+        # setting width and height of the main window
         self.master.geometry('400x400')
+        # setting title
+        self.master.title('Snake game with Tkinter')
         # defying game board
         self.board = Canvas(self.master, width=300, height=300, background='grey')
         # creating first snake's block
@@ -33,7 +35,9 @@ class Snake:
         self.speed = 101
         # defying a food abject
         self.food = None
-        print(self.speed)
+        self.text_speed = StringVar()
+        self.points = StringVar()
+        self.game_menu()
         self.movement()
 
     def movement(self):
@@ -55,6 +59,7 @@ class Snake:
             lbc = self.board.coords(self.snake_body[-1])
             new_block = self.board.create_rectangle(lbc[0], lbc[1], lbc[2], lbc[3], fill='blue')
             self.snake_body.append(new_block)
+            self.points.set(len(self.snake_body) - 3)
 
         # defying stop conditions
         stop_condition = False
@@ -87,6 +92,16 @@ class Snake:
             if not self.food:
                 self.food = self.food_creator()
 
+    def game_menu(self):
+        speed_text = self.text_speed
+        speed_text.set(self.speed)
+        snake_speed_label = Label(self.master, textvariable=speed_text)
+        snake_speed_label.pack()
+        points_text = self.points
+        points_text.set(len(self.snake_body) - 3)
+        points_text_label = Label(self.master, textvariable=points_text)
+        points_text_label.pack()
+
     def food_creator(self):
         f1 = randint(0, 29) * 10
         f2 = randint(0, 29) * 10
@@ -94,26 +109,32 @@ class Snake:
         return food
 
     def left(self, event):
-        self.x = -10
-        self.y = 0
+        if self.x != 10:
+            self.x = -10
+            self.y = 0
 
     def right(self, event):
-        self.x = 10
-        self.y = 0
+        if self.x != -10:
+            self.x = 10
+            self.y = 0
 
     def up(self, event):
-        self.y = -10
-        self.x = 0
+        if self.y != 10:
+            self.y = -10
+            self.x = 0
 
     def down(self, event):
-        self.y = 10
-        self.x = 0
+        if self.y != -10:
+            self.y = 10
+            self.x = 0
 
     def speed_up(self, event):
         self.speed -= 10
+        self.text_speed.set(self.speed)
 
     def speed_down(self, event):
         self.speed += 10
+        self.text_speed.set(self.speed)
 
 
 if __name__ == "__main__":
