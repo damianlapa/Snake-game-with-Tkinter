@@ -49,6 +49,13 @@ class Snake:
                     previous_block_coords = self.board.coords(self.snake_body[self.snake_body.index(block) - 1])
                     self.board.coords(block, previous_block_coords)
 
+        # The snake grows up after eat a food
+        if self.food and self.board.coords(self.snake) == self.board.coords(self.food):
+            # last block coordinates
+            lbc = self.board.coords(self.snake_body[-1])
+            new_block = self.board.create_rectangle(lbc[0], lbc[1], lbc[2], lbc[3], fill='blue')
+            self.snake_body.append(new_block)
+
         # defying stop conditions
         stop_condition = False
         snake_position = self.board.coords(self.snake)
