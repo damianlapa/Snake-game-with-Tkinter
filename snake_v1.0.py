@@ -32,11 +32,15 @@ class Snake:
         # defying variables to move snake blocks on the screen
         self.x, self.y = 0, 0
         # snake speed(1square/value in ms)
-        self.speed = 101
+        self.speed = 1001
         # defying a food abject
         self.food = None
+        # setting auto snake switch to turn off
+        self.auto_snake = 0
         self.text_speed = StringVar()
         self.points = StringVar()
+        self.player_name = ""
+
         self.game_menu()
         self.movement()
 
@@ -85,12 +89,31 @@ class Snake:
             self.board.after(self.speed, self.movement)
             # eating the food by the snake
             if self.food:
+
                 if snake_position == self.board.coords(self.food):
                     self.board.delete(self.food)
                     self.food = None
             # creating new food
             if not self.food:
                 self.food = self.food_creator()
+
+        else:
+            # saving score to file
+            self.player_name = 'test'
+            self.score_handler()
+
+        # turning on/off auto snake
+        if self.auto_snake % 2 != 0:
+            food_coords = self.board.coords(self.food)
+            snake_coords = self.board.coords(self.snake)
+            if snake_coords[0] > food_coords[0]:
+                self.x = -10
+            if snake_coords[1] > food_coords[1]:
+                self.y = -10
+            if snake_coords[0] < food_coords[0]:
+                self.x = 10
+            if snake_coords[1] < food_coords[1]:
+                self.y = 10
 
     def game_menu(self):
         speed_text = self.text_speed
@@ -102,6 +125,11 @@ class Snake:
         points_text_label = Label(self.master, textvariable=points_text)
         points_text_label.pack()
 
+    def score_handler(self):
+        player_name = self.player_name
+        f = open("high-score.txt", "a+")
+        f.write('Player {} - score: {} \r\n'.format(player_name, self.points.get()))
+
     def food_creator(self):
         f1 = randint(0, 29) * 10
         f2 = randint(0, 29) * 10
@@ -109,22 +137,26 @@ class Snake:
         return food
 
     def left(self, event):
-        if self.x != 10:
+        if (self.board.coords(self.snake)[0] - 10 != self.board.coords(self.snake2)[0]) and (
+                self.board.coords(self.snake)[1] + 0 != self.board.coords(self.snake2)[1]):
             self.x = -10
             self.y = 0
 
     def right(self, event):
-        if self.x != -10:
+        if (self.board.coords(self.snake)[0] + 10 != self.board.coords(self.snake2)[0]) and (
+                self.board.coords(self.snake)[1] != self.board.coords(self.snake2)[1]):
             self.x = 10
             self.y = 0
 
     def up(self, event):
-        if self.y != 10:
+        if (self.board.coords(self.snake)[0] != self.board.coords(self.snake2)[0]) and (
+                self.board.coords(self.snake)[1] - 10 != self.board.coords(self.snake2)[1]):
             self.y = -10
             self.x = 0
 
     def down(self, event):
-        if self.y != -10:
+        if (self.board.coords(self.snake)[0] != self.board.coords(self.snake2)[0]) and (
+                self.board.coords(self.snake)[1] + 10 != self.board.coords(self.snake2)[1]):
             self.y = 10
             self.x = 0
 
@@ -136,6 +168,9 @@ class Snake:
         self.speed += 10
         self.text_speed.set(self.speed)
 
+    def auto_snake_switch(self, event):
+        self.auto_snake += 1
+
 
 if __name__ == "__main__":
     master = Tk()
@@ -146,5 +181,6 @@ if __name__ == "__main__":
     master.bind("<KeyPress-Down>", lambda e: snake.down(e))
     master.bind("<KeyPress-q>", lambda e: snake.speed_up(e))
     master.bind("<KeyPress-a>", lambda e: snake.speed_down(e))
+    master.bind("<KeyPress-z>", lambda e: snake.auto_snake_switch(e))
 
     master.mainloop()
