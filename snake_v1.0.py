@@ -2,15 +2,6 @@ from tkinter import *
 from random import randint
 
 
-class GameBoard:
-    def __init__(self, size_x=300, size_y=300):
-        self.board = Tk()
-        self.size_x = size_x
-        self.size_y = size_y
-        self.board.geometry('{}x{}'.format(self.size_x, self.size_y))
-        self.board.mainloop()
-
-
 class Snake:
     def __init__(self, tk_environment):
         # launching Tkinter environment
@@ -32,14 +23,17 @@ class Snake:
         # defying variables to move snake blocks on the screen
         self.x, self.y = 0, 0
         # snake speed(1square/value in ms)
-        self.speed = 1001
+        self.speed = 101
         # defying a food abject
         self.food = None
         # setting auto snake switch to turn off
         self.auto_snake = 0
+        self.hit_mark = None
         self.text_speed = StringVar()
         self.points = StringVar()
         self.player_name = ""
+        self.stop_condition = False
+        self.restart_button = None
 
         self.game_menu()
         self.movement()
@@ -66,25 +60,24 @@ class Snake:
             self.points.set(len(self.snake_body) - 3)
 
         # defying stop conditions
-        stop_condition = False
         snake_position = self.board.coords(self.snake)
         # adding snake's body blocks to prohibited fields
         for block in self.snake_body[1:]:
             if self.board.coords(self.snake) == self.board.coords(block):
-                self.board.create_rectangle(snake_position[0] - self.x, snake_position[1] - self.y,
-                                            snake_position[2] - self.x, snake_position[3] - self.y,
-                                            fill='red')
-                stop_condition = True
+                self.hit_mark = self.board.create_rectangle(snake_position[0] - self.x, snake_position[1] - self.y,
+                                                            snake_position[2] - self.x, snake_position[3] - self.y,
+                                                            fill='red')
+                self.stop_condition = True
 
         if 0 > snake_position[0] or snake_position[0] >= 300 or 0 < snake_position[1] >= 300 or snake_position[1] < 0:
             # creating a red block on the place where the snake hit a wall
-            self.board.create_rectangle(snake_position[0] - self.x, snake_position[1] - self.y,
-                                        snake_position[2] - self.x, snake_position[3] - self.y,
-                                        fill='red')
-            stop_condition = True
+            self.hit_mark = self.board.create_rectangle(snake_position[0] - self.x, snake_position[1] - self.y,
+                                                        snake_position[2] - self.x, snake_position[3] - self.y,
+                                                        fill='red')
+            self.stop_condition = True
 
         # checking if the move is allowed
-        if not stop_condition:
+        if not self.stop_condition:
             # repeating snake move after self.speed in ms
             self.board.after(self.speed, self.movement)
             # eating the food by the snake
@@ -101,25 +94,32 @@ class Snake:
             # saving score to file
             self.player_name = 'test'
             self.score_handler()
+            self.restart_button = Button(self.master, text='Again?', command=self.restart)
+            self.restart_button.place(x=150, y=150)
 
         # turning on/off auto snake
         if self.auto_snake % 2 != 0:
             food_coords = self.board.coords(self.food)
             snake_coords = self.board.coords(self.snake)
-            if snake_coords[0] > food_coords[0]:
+            if snake_coords[0] > food_coords[0] and self.x != 10:
                 self.x = -10
-            if snake_coords[1] > food_coords[1]:
-                self.y = -10
-            if snake_coords[0] < food_coords[0]:
+                self.y = 0
+            if snake_coords[0] < food_coords[0] and self.x != -10:
                 self.x = 10
-            if snake_coords[1] < food_coords[1]:
-                self.y = 10
+                self.y = 0
+            if snake_coords[0] == food_coords[0] and self.y != -10:
+                if snake_coords[1] > food_coords[1] and self.y != 10:
+                    self.y = -10
+                    self.x = 0
+                elif snake_coords[1] < food_coords[1] and self.y != -10:
+                    self.y = 10
+                    self.x = 0
 
     def game_menu(self):
         speed_text = self.text_speed
         speed_text.set(self.speed)
         snake_speed_label = Label(self.master, textvariable=speed_text)
-        snake_speed_label.pack()
+        snake_speed_label.place(x=0, y=0)
         points_text = self.points
         points_text.set(len(self.snake_body) - 3)
         points_text_label = Label(self.master, textvariable=points_text)
@@ -129,6 +129,22 @@ class Snake:
         player_name = self.player_name
         f = open("high-score.txt", "a+")
         f.write('Player {} - score: {} \r\n'.format(player_name, self.points.get()))
+        f.close()
+
+    def restart(self):
+        for block in self.snake_body:
+            self.board.delete(block)
+        self.points.set(0)
+        self.board.delete(self.hit_mark)
+        self.x = 0
+        self.y = 0
+        self.stop_condition = False
+        self.snake = self.board.create_rectangle(50, 50, 60, 60, fill='green')
+        self.snake2 = self.board.create_rectangle(40, 50, 50, 60, fill='blue')
+        self.snake3 = self.board.create_rectangle(30, 50, 40, 60, fill='blue')
+        self.snake_body = [self.snake, self.snake2, self.snake3]
+        self.restart_button.destroy()
+        self.movement()
 
     def food_creator(self):
         f1 = randint(0, 29) * 10
@@ -143,8 +159,7 @@ class Snake:
             self.y = 0
 
     def right(self, event):
-        if (self.board.coords(self.snake)[0] + 10 != self.board.coords(self.snake2)[0]) and (
-                self.board.coords(self.snake)[1] != self.board.coords(self.snake2)[1]):
+        if self.board.coords(self.snake)[0] + 10 != self.board.coords(self.snake2)[0]:
             self.x = 10
             self.y = 0
 
