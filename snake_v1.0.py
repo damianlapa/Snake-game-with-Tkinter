@@ -34,6 +34,9 @@ class Snake:
         self.player_name = ""
         self.stop_condition = False
         self.restart_button = None
+        self.highest_results = []
+
+        self.print_highest_results()
 
         self.game_menu()
         self.movement()
@@ -185,6 +188,21 @@ class Snake:
 
     def auto_snake_switch(self, event):
         self.auto_snake += 1
+
+    # displaying the best results
+    def print_highest_results(self):
+        scores = open('high-score.txt', 'r')
+        for score in scores:
+            score = score.split()
+            player = score[1]
+            points = score[-1]
+            self.highest_results.append((player, points))
+        self.highest_results.sort(key=lambda x: int(x[1]))
+        hi_score = "{} - {}".format(self.highest_results[-1][0], self.highest_results[-1][1])
+        hi_label = Label(self.master, text=hi_score)
+        hi_label.place(x=175, y=375)
+
+
 
 
 if __name__ == "__main__":
