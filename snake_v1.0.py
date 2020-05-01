@@ -35,9 +35,7 @@ class Snake:
         self.stop_condition = False
         self.restart_button = None
         self.highest_results = []
-
-        self.print_highest_results()
-
+        self.hi_frame = Frame(self.master, relief=SUNKEN, width=150, height=220)
         self.game_menu()
         self.movement()
 
@@ -97,8 +95,9 @@ class Snake:
             # saving score to file
             self.player_name = 'test'
             self.score_handler()
+            self.print_highest_results()
             self.restart_button = Button(self.master, text='Again?', command=self.restart)
-            self.restart_button.place(x=150, y=150)
+            self.restart_button.place(x=150, y=55)
 
         # turning on/off auto snake
         if self.auto_snake % 2 != 0:
@@ -147,6 +146,7 @@ class Snake:
         self.snake3 = self.board.create_rectangle(30, 50, 40, 60, fill='blue')
         self.snake_body = [self.snake, self.snake2, self.snake3]
         self.restart_button.destroy()
+        self.hi_frame.place_forget()
         self.movement()
 
     def food_creator(self):
@@ -198,11 +198,18 @@ class Snake:
             points = score[-1]
             self.highest_results.append((player, points))
         self.highest_results.sort(key=lambda x: int(x[1]))
-        hi_score = "{} - {}".format(self.highest_results[-1][0], self.highest_results[-1][1])
-        hi_label = Label(self.master, text=hi_score)
-        hi_label.place(x=175, y=375)
-
-
+        counter = 1
+        self.hi_frame.place(x=150, y=100)
+        title_label = Label(self.hi_frame, text='BEST RESULTS', font='Courier 15 bold')
+        title_label.place(x=0, y=0)
+        for result in self.highest_results[::-1]:
+            hi_score = "{}) {} - {}".format(counter, result[0], result[1])
+            hi_label = Label(self.hi_frame, text=hi_score)
+            hi_label.place(x=0, y=0 + (counter * 20))
+            counter += 1
+            if counter == 11:
+                break
+        self.highest_results = []
 
 
 if __name__ == "__main__":
