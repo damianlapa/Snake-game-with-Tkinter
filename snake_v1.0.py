@@ -179,8 +179,16 @@ class Snake:
         self.movement()
 
     def food_creator(self):
+        snake_body_fields = []
+        for block in self.snake_body:
+            bf1 = self.board.coords(block)[0]
+            bf2 = self.board.coords(block)[1]
+            snake_body_fields.append((bf1, bf2))
         f1 = randint(0, 29) * 10
         f2 = randint(0, 29) * 10
+        while (f1, f2) in snake_body_fields:
+            f1 = randint(0, 29) * 10
+            f2 = randint(0, 29) * 10
         food = self.board.create_oval(f1, f2, f1 + 10, f2 + 10, fill='yellow')
         return food
 
