@@ -31,15 +31,40 @@ class Snake:
         self.hit_mark = None
         self.text_speed = StringVar()
         self.points = StringVar()
-        self.player_name = ""
+        self.player_name = None
         self.stop_condition = False
         self.restart_button = None
         self.highest_results = []
         self.hi_frame = Frame(self.master, relief=SUNKEN, width=150, height=220)
-        self.game_menu()
-        self.movement()
+
+        # creating first screen
+        self.first_screen = Frame(self.master, bg='black', width=400, height=400)
+        self.player_name_entry = None
+
+        # game menu activating switch
+        self.game_menu_switch = None
+
+        self.first_screen_display()
+
+    def first_screen_display(self):
+        self.first_screen.place(x=0, y=0)
+        title = Label(self.first_screen, text='SNAKE', font='Courier 44 bold', bg='black', fg='green')
+        title.place(x=110, y=50)
+        player_label = Label(self.first_screen, text='Enter your name:', font='Courier 20 bold', bg='black',
+                             fg='yellow')
+        player_label.place(x=90, y=115)
+        self.player_name_entry = Entry(self.first_screen)
+        self.player_name_entry.place(x=120, y=160)
+        self.player_name_entry.focus_set()
+        play_button = Button(self.first_screen, text='PLAY', command=self.movement)
+        play_button.place(x=175, y=200)
 
     def movement(self):
+        if not self.game_menu_switch:
+            self.game_menu()
+        self.player_name = self.player_name_entry.get()
+        self.first_screen.place_forget()
+        self.board.focus_set()
         # defying snake head moves on board
         self.board.move(self.snake, self.x, self.y)
         # defying snake body moves on board
@@ -93,7 +118,8 @@ class Snake:
 
         else:
             # saving score to file
-            self.player_name = 'test'
+            if not self.player_name:
+                self.player_name = 'No name'
             self.score_handler()
             self.print_highest_results()
             self.restart_button = Button(self.master, text='Again?', command=self.restart)
@@ -118,14 +144,17 @@ class Snake:
                     self.x = 0
 
     def game_menu(self):
+        self.game_menu_switch = True
         speed_text = self.text_speed
         speed_text.set(self.speed)
-        snake_speed_label = Label(self.master, textvariable=speed_text)
+        snake_speed_label = Label(self.master, textvariable=speed_text, bg='grey')
         snake_speed_label.place(x=0, y=0)
         points_text = self.points
         points_text.set(len(self.snake_body) - 3)
         points_text_label = Label(self.master, textvariable=points_text)
-        points_text_label.pack()
+        points_text_label.place(x=200, y=0)
+        points_label = Label(self.master, text='Points:', bg='grey', fg='black')
+        points_label.place(x=150, y=0)
 
     def score_handler(self):
         player_name = self.player_name
